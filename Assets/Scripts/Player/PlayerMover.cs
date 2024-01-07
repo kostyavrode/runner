@@ -9,6 +9,7 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] public Transform[] transforms;
     [SerializeField] private float transformSpeed;
     [SerializeField] private float jumpForce;
+    [SerializeField] private Joystick joystick;
 
     private Animator animator;
     private Rigidbody rigidbody;
@@ -18,6 +19,7 @@ public class PlayerMover : MonoBehaviour
     private int lastTransformPlayer;
     private bool isTransforming;
     private bool canJump=true;
+    private bool isCanMove;
     private void Start()
     {
         animator = GetComponentInChildren<Animator>();
@@ -33,9 +35,18 @@ public class PlayerMover : MonoBehaviour
         MoveRight();
         Jump();
         Roll();
+        CheckIsCanMove();
+    }
+    private void CheckIsCanMove()
+    {
+        if (joystick.Horizontal==0f && !isCanMove)
+        {
+            isCanMove = true;
+        }
     }
     private void Move()
     {
+        isCanMove = false;
         //transform.DOMove(new Vector3(transforms[transformPlayer].position.x,gameObject.transform.position.y, transforms[transformPlayer].position.z), 0.2f).SetEase(Ease.Flash);
         transform.DOMoveZ(transforms[transformPlayer].position.z, 0.2f).SetEase(Ease.Flash);
     }
@@ -47,6 +58,12 @@ public class PlayerMover : MonoBehaviour
             transformPlayer=transformPlayer-1;
             Move();
         }
+        if (joystick.Horizontal<=-0.9f && transformPlayer > 0 && isCanMove)
+        {
+            lastTransformPlayer = transformPlayer;
+            transformPlayer = transformPlayer - 1;
+            Move();
+        }
     }
     private void MoveRight()
     {
@@ -56,10 +73,23 @@ public class PlayerMover : MonoBehaviour
             transformPlayer =transformPlayer+1;
             Move();
         }
+        if (joystick.Horizontal >= 0.9f && transformPlayer < 2 && isCanMove)
+        {
+            lastTransformPlayer = transformPlayer;
+            transformPlayer = transformPlayer + 1;
+            Move();
+        }
     }
     private void Jump()
     {
         if(Input.GetKeyDown(KeyCode.Space)&&canJump)
+        {
+            animator.SetTrigger("jump");
+            canJump = false;
+            rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            Observable.Timer(System.TimeSpan.FromSeconds(1f)).TakeUntilDisable(gameObject).Subscribe(x => canJump = true);
+        }
+        if (joystick.Vertical >= 0.9f && canJump )
         {
             animator.SetTrigger("jump");
             canJump = false;
@@ -80,6 +110,19 @@ public class PlayerMover : MonoBehaviour
             canJump = true;
             capsuleCollider.enabled = true;
             sphereCollider.enabled = false;
+            });
+        }
+        if (joystick.Vertical<=-0.9f && canJump)
+        {
+            animator.SetTrigger("roll");
+            canJump = false;
+            capsuleCollider.enabled = false;
+            sphereCollider.enabled = true;
+            Observable.Timer(System.TimeSpan.FromSeconds(.9f)).TakeUntilDisable(gameObject).Subscribe(x =>
+            {
+                canJump = true;
+                capsuleCollider.enabled = true;
+                sphereCollider.enabled = false;
             });
         }
     }
