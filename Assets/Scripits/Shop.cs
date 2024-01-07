@@ -31,6 +31,7 @@ public class Shop : MonoBehaviour
             PlayerPrefs.SetString("Buy1","true");
             PlayerPrefs.Save();
             CheckBuy();
+            GameManager.instance.CheckHats();
         }
     }
     public void Buy2()

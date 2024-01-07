@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using DG.Tweening;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -14,6 +14,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject[] startObjects;
     [SerializeField] private GameObject playerModel;
     [SerializeField] private GameObject playerIdle;
+    [SerializeField] private GameObject cameraM;
+    [SerializeField] private Transform inGameCameraPos;
+    [SerializeField] private GameObject[] objectsForDeactivate;
+    [SerializeField] private GameObject[] hats;
     private void Awake()
     {
         instance = this;
@@ -27,7 +31,7 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetInt("Money", 0);
             PlayerPrefs.Save();
         }
-        
+        CheckHats();
     }
     private void Start()
     {
@@ -41,6 +45,16 @@ public class GameManager : MonoBehaviour
             UIManager.instance.ShowScore(score.ToString());
         }
     }
+    public void CheckHats()
+    {
+        if (PlayerPrefs.HasKey("Buy1"))
+        {
+            foreach (GameObject hat in hats)
+            {
+                hat.SetActive(true);
+            }
+        }
+    }
     public void StartGame()
     {
         isGameStarted = true;
@@ -52,7 +66,17 @@ public class GameManager : MonoBehaviour
         {
             gameObject.SetActive(true);
         }
-        
+        foreach(GameObject obj in objectsForDeactivate)
+        {
+            obj.SetActive(false);
+        }
+        cameraM.transform.DOMove(inGameCameraPos.position, 1f);
+        cameraM.transform.DORotateQuaternion(inGameCameraPos.rotation, 1f);
+    }
+    public void AddMoney()
+    {
+        PlayerPrefs.SetInt("Money", PlayerPrefs.GetInt("Money") + 1);
+        PlayerPrefs.Save();
     }
     public void PauseGame()
     {
