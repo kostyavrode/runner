@@ -10,7 +10,6 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] private float transformSpeed;
     [SerializeField] private float jumpForce;
 
-    private PlayerInfoAndUI playerInfo;
     private Animator animator;
     private Rigidbody rigidbody;
     private SphereCollider sphereCollider;
@@ -25,7 +24,7 @@ public class PlayerMover : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
         sphereCollider = GetComponent<SphereCollider>();
         capsuleCollider = GetComponent<CapsuleCollider>();
-        playerInfo = GetComponent<PlayerInfoAndUI>();
+
         Move();
     }
     private void Update()
@@ -37,7 +36,8 @@ public class PlayerMover : MonoBehaviour
     }
     private void Move()
     {
-        transform.DOMove(new Vector3(transforms[transformPlayer].position.x,gameObject.transform.position.y, transforms[transformPlayer].position.z), 0.2f).SetEase(Ease.Flash);
+        //transform.DOMove(new Vector3(transforms[transformPlayer].position.x,gameObject.transform.position.y, transforms[transformPlayer].position.z), 0.2f).SetEase(Ease.Flash);
+        transform.DOMoveZ(transforms[transformPlayer].position.z, 0.2f).SetEase(Ease.Flash);
     }
     private void MoveLeft()
     {
@@ -105,7 +105,6 @@ public class PlayerMover : MonoBehaviour
         animator.SetBool("dead", true);
         onDeath?.Invoke();
         this.enabled = false;
-        playerInfo.playerAlive = false;
-        playerInfo.WriteBestScore();
+        GameManager.instance.EndGame();
     }
 }

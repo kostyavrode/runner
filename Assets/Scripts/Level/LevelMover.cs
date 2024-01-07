@@ -11,6 +11,7 @@ public class LevelMover : MonoBehaviour
     }
     void Update()
     {
+        if (GameManager.instance.IsGameStarted())
         transform.Translate(new Vector3(1f, 0f, 0f) * Time.deltaTime*speed);
     }
     private void StopMove()
