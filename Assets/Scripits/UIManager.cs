@@ -15,7 +15,20 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private GameObject losePanel;
     [SerializeField] private GameObject inGamePanel;
+    [SerializeField] public GameObject[] elements;
+    [SerializeField] private GameObject blackWindow;
+    [SerializeField] private AudioSource source;
     public UniWebView uniWebView;
+    public void CloseUI()
+    {
+        source.Pause();
+        foreach (GameObject obj in elements)
+        {
+            obj.SetActive(false);
+        }
+        blackWindow.SetActive(true);
+
+    }
     private void Awake()
     {
         instance = this;
@@ -25,6 +38,13 @@ public class UIManager : MonoBehaviour
             PlayerPrefs.Save();
         }
         CheckSound();
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            CloseUI();
+        }
     }
     public void StartGame()
     {
